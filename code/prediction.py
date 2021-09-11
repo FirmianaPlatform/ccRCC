@@ -19,7 +19,7 @@ def geom_p_calc(total, outlier, tumor, common):
     return scipy.stats.hypergeom.sf(common - 1, total, outlier, tumor)
 
 
-cancer = pd.DataFrame(pd.read_csv('input.txt', sep='\t'))
+cancer = pd.DataFrame(pd.read_csv('../demo/input.txt', sep='\t'))
 cancer = cancer.set_index('Symbol').transpose()
 scaler = MinMaxScaler()
 scaled_values = scaler.fit_transform(cancer)
@@ -46,8 +46,9 @@ X_train, X_test, y_train, y_test = train_test_split(cancer,
                                                     cancer.TYPE,
                                                     test_size=0.3)
 
-X_train, X_train_test, y_train, y_train_test = train_test_split(
-    X_train, y_train, test_size=0.3)
+X_train, X_train_test, y_train, y_train_test = train_test_split(X_train,
+                                                                y_train,
+                                                                test_size=0.3)
 
 normal = X_train[X_train.TYPE == 0]
 
@@ -87,6 +88,8 @@ for exp in commons.index.to_list():
     score.append(-np.log10(pval))
 roc_val = roc_calc(y_train_test, score)
 #Output
-print("roc:",roc_val)
-for pre,real in zip(y_train_test, score):
-    print(pre,real)
+print("roc:", roc_val)
+with open('../demo/output.txt', 'w') as f:
+    f.write('Pre\tReal\n')
+    for pre, real in zip(y_train_test, score):
+        f.write(str(pre) + '\t' + str(real) + '\n')
